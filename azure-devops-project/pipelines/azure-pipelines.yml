@@ -11,3 +11,15 @@ variables:
   aksCluster: 'aks-devops-demo'
   imageName: 'nginx-app'
   imageTag: '$(Build.BuildId)'
+
+stages:
+  - stage: BuildAndDeploy
+    displayName: Build and Deploy
+    jobs:
+      - job: Validate
+        displayName: Validate Pipeline
+        steps:
+          - script: |
+              echo "Pipeline stage is working."
+              echo "Next we will configure ACR build and AKS deployment."
+            displayName: Verify Pipeline
