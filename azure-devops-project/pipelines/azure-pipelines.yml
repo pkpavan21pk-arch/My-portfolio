@@ -5,7 +5,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  azureServiceConnection: 'pavan-devops-secret'
+  azureServiceConnection: 'pavan-test'
   resourceGroup: 'rg-devops-demo'
   acrName: 'pavandevopsacr20261015'
   aksCluster: 'aks-devops-demo'
