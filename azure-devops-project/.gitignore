@@ -1,0 +1,19 @@
+# Terraform local files
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+*.tfplan
+terraform.tfvars
+
+# Secrets and local credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# IDE and OS files
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,13 @@
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  azureServiceConnection: 'pavan-devops-secret'
+  resourceGroup: 'rg-devops-demo'
+  acrName: 'pavandevopsacr20261015'
+  aksCluster: 'aks-devops-demo'
+  imageName: 'nginx-app'
+  imageTag: '$(Build.BuildId)'
