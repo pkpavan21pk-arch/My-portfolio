@@ -159,6 +159,29 @@ kubectl get service nginx-app-service
 - **GitHub Repository:** https://github.com/pkpavan21pk-arch/My-portfolio/tree/main/azure-devops-project
 - **Portfolio Website:** https://pkpavan21pk-arch.github.io/My-portfolio/
 
+
+
+
+## 📸 Project Screenshots
+
+### 1. Live Application on Azure Kubernetes Service (AKS)
+
+The NGINX application is publicly accessible through the Kubernetes LoadBalancer service.
+
+![Live Application](docs/screenshots/live-application.png)
+
+### 2. Azure DevOps CI/CD Pipeline
+
+Both Build and Deploy stages completed successfully using Azure Pipelines YAML.
+
+![Successful Azure DevOps Pipeline](docs/screenshots/pipeline-success.png)
+
+### 3. Kubernetes Deployment Verification
+
+The application was verified on AKS with two running replicas and a LoadBalancer service.
+
+![Kubernetes Deployment Verification](docs/screenshots/kubernetes-verification.png)
 ---
+
 
 *Built as a hands-on Cloud and DevOps portfolio project to demonstrate infrastructure automation, containerization, CI/CD, and Kubernetes deployment on Microsoft Azure.*
