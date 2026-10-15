@@ -53,11 +53,11 @@ stages:
                   --resource-group "$(resourceGroup)" \
                   --name "$(aksCluster)" \
                   --overwrite-existing
-sed "s|IMAGE_PLACEHOLDER|$(acrName).azurecr.io/$(imageName):$(imageTag)|g" \
-azure-devops-project/k8s/deployment.yaml \
-> "$(Agent.TempDirectory)/deployment.yaml"
 
-kubectl apply -f "$(Agent.TempDirectory)/deployment.yaml"
-kubectl apply -f azure-devops-project/k8s/service.yaml
+                sed "s|IMAGE_PLACEHOLDER|$(acrName).azurecr.io/$(imageName):$(imageTag)|g" \
+                  azure-devops-project/k8s/deployment.yaml \
+                  > "$(Agent.TempDirectory)/deployment.yaml"
 
-kubectl rollout status deployment/nginx-app --timeout=180s
+                kubectl apply -f "$(Agent.TempDirectory)/deployment.yaml"
+                kubectl apply -f azure-devops-project/k8s/service.yaml
+                kubectl rollout status deployment/nginx-app --timeout=180s
