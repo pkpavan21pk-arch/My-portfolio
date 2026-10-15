@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: nginx-app
-          image: pavandevopsacr20261015.azurecr.io/nginx-app:$(Build.BuildId)
+          image: IMAGE_PLACEHOLDER
           ports:
             - containerPort: 80
