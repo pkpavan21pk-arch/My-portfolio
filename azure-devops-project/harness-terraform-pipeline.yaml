@@ -1,7 +1,7 @@
 
 pipeline:
   stages:
-    - name: Deploy Azure Infrastructure
+    - name: Destroy Azure Infrastructure
       runtime: cloud
       platform:
         os: linux
@@ -11,53 +11,90 @@ pipeline:
             script: |-
               set -eu
 
-              echo "Step 1: Clone repository"
+              echo "======================================"
+              echo "Step 1: Clone Terraform repository"
+              echo "======================================"
+
               git clone --depth 1 --branch main https://github.com/pkpavan21pk-arch/My-portfolio.git /tmp/My-portfolio
+
               cd /tmp/My-portfolio/azure-devops-project/infra
 
+              echo "======================================"
               echo "Step 2: Install prerequisites"
+              echo "======================================"
+
               apt-get update
               apt-get install -y curl unzip
 
+              echo "======================================"
               echo "Step 3: Install Terraform"
+              echo "======================================"
+
               TERRAFORM_VERSION="1.16.5"
+
               curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
               unzip -o /tmp/terraform.zip -d /usr/local/bin
+
               terraform version
 
-              echo "Step 4: Format Terraform"
-              terraform fmt -recursive
-              terraform fmt -check -recursive
+              echo "======================================"
+              echo "Step 4: Configure Azure credentials"
+              echo "======================================"
 
-              echo "Step 5: Configure Azure authentication"
               export ARM_CLIENT_ID="bb4283e0-42db-4cf5-969c-55d4c18f802f"
               export ARM_TENANT_ID="aea8d035-0629-4c0a-bb73-16ec83172238"
               export ARM_SUBSCRIPTION_ID="171a17a7-9dc3-406d-878e-b33aee0551a2"
               export ARM_CLIENT_SECRET='<+secrets.getValue("secret_3fbe")>'
 
-              : "${ARM_CLIENT_ID:?Azure client ID missing}"
-              : "${ARM_TENANT_ID:?Azure tenant ID missing}"
-              : "${ARM_SUBSCRIPTION_ID:?Azure subscription ID missing}"
-              : "${ARM_CLIENT_SECRET:?Azure client secret missing}"
+              : "${ARM_CLIENT_SECRET:?Azure client secret is missing}"
 
-              echo "Step 6: Initialize Terraform"
+              echo "======================================"
+              echo "Step 5: Initialize Terraform"
+              echo "======================================"
+
               terraform init -input=false
 
-              echo "Step 7: Validate Terraform"
+              echo "======================================"
+              echo "Step 6: Validate Terraform"
+              echo "======================================"
+
               terraform validate
 
-              echo "Step 8: Plan Azure infrastructure"
-              terraform plan \
+              echo "======================================"
+              echo "Step 7: Check Terraform state"
+              echo "======================================"
+
+              if ! STATE_RESOURCES="$(terraform state list)"; then
+                echo "ERROR: Terraform state is unavailable."
+                echo "Destroy cancelled to prevent an incomplete cleanup."
+                echo "Use the same persistent state/backend as the deployment."
+                exit 1
+              fi
+
+              if [ -z "$STATE_RESOURCES" ]; then
+                echo "ERROR: Terraform state contains no managed resources."
+                echo "Destroy cancelled. Do not assume Azure resources were removed."
+                exit 1
+              fi
+
+              echo "Resources tracked by Terraform:"
+              printf '%s\n' "$STATE_RESOURCES"
+
+              echo "======================================"
+              echo "Step 8: Destroy Azure infrastructure"
+              echo "======================================"
+
+              terraform destroy \
                 -input=false \
+                -auto-approve \
                 -var="subscription_id=${ARM_SUBSCRIPTION_ID}" \
                 -var="name=devops-demo" \
-                -var="location=eastus" \
-                -out=tfplan
+                -var="location=eastus"
 
-              echo "Step 9: Apply Terraform plan"
-              terraform apply -input=false -auto-approve tfplan
-
-              echo "Azure infrastructure deployment completed"
+              echo "======================================"
+              echo "Terraform destroy completed"
+              echo "======================================"
   inputs:
     azure:
       type: connector
