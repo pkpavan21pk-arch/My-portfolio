@@ -1,7 +1,7 @@
 
 pipeline:
   stages:
-    - name: terraform-ci
+    - name: terraform-deployment
       runtime: cloud
       platform:
         os: linux
@@ -10,40 +10,9 @@ pipeline:
         - run:
             script: |
               set -e
-              echo "=== Step 1: Check Terraform ==="
-              terraform version
-              git --version
-
-        - run:
-            script: |
-              set -e
-              echo "=== Step 2: Locate Terraform Project ==="
-              echo "Current directory:"
-              pwd
-              echo "Available files:"
-              ls -la
-              echo "Searching for Terraform configuration:"
-              find . -maxdepth 6 -type f -name "*.tf"
-
-        
-        - run:
-            script: |
-              set -e
-              echo "=== Locate Terraform Project ==="
-              echo "Current directory:"
-              pwd
-              echo "Workspace contents:"
-              ls -la
-
-              INFRA_DIR=$(find . -maxdepth 6 -type d -path "*/azure-devops-project/infra" -print -quit)
-
-              if [ -z "$INFRA_DIR" ]; then
-                echo "Terraform directory not found."
-                echo "Checking for Terraform files:"
-                find . -maxdepth 6 -type f -name "*.tf"
-                exit 1
-              fi
-
-              echo "Terraform directory found at: $INFRA_DIR"
-              ls -la "$INFRA_DIR"
-
+              echo "=== Terraform Infrastructure Pipeline ==="
+              echo "Project: Azure-DevOps-Harness"
+              echo "Repository: pkpavan21pk-arch/My-portfolio"
+              echo "Branch: main"
+              echo "Terraform directory: azure-devops-project/infra"
+              echo "Next: configure repository checkout and Terraform state"
