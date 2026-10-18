@@ -1,6 +1,6 @@
 pipeline:
   stages:
-    - name: Terraform Validate
+    - name: Deploy Azure Infrastructure
       runtime: cloud
       platform:
         os: linux
@@ -10,58 +10,32 @@ pipeline:
             script: |
               set -eu
 
-              echo "======================================"
-              echo "Step 1: Clone GitHub repository"
-              echo "======================================"
-
+              echo "Cloning Terraform repository"
               git clone --depth 1 --branch main https://github.com/pkpavan21pk-arch/My-portfolio.git /tmp/My-portfolio
 
-              echo "======================================"
-              echo "Step 2: Navigate to Terraform code"
-              echo "======================================"
-
               cd /tmp/My-portfolio/azure-devops-project/infra
-              pwd
-              ls -la
 
-              echo "======================================"
-              echo "Step 3: Install required tools"
-              echo "======================================"
-
+              echo "Installing prerequisites"
               apt-get update
               apt-get install -y curl unzip
 
-              echo "======================================"
-              echo "Step 4: Install Terraform"
-              echo "======================================"
-
               TERRAFORM_VERSION="1.16.5"
-
               curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
-
               unzip -o /tmp/terraform.zip -d /usr/local/bin
 
+              echo "Terraform version"
               terraform version
 
-              echo "======================================"
-              echo "Step 5: Format Terraform files"
-              echo "======================================"
-
-              terraform fmt -recursive
+              echo "Checking Terraform formatting"
               terraform fmt -check -recursive
 
-              echo "======================================"
-              echo "Step 6: Initialize Terraform"
-              echo "======================================"
+              echo "Initializing Terraform"
+              terraform init -input=false
 
-              terraform init -backend=false -input=false
+              echo "Planning Azure infrastructure"
+              terraform plan -input=false -out=tfplan
 
-              echo "======================================"
-              echo "Step 7: Validate Terraform"
-              echo "======================================"
+              echo "Applying Azure infrastructure"
+              terraform apply -input=false -auto-approve tfplan
 
-              terraform validate
-
-              echo "======================================"
-              echo "SUCCESS: Terraform validation completed"
-              echo "======================================"
+              echo "Azure infrastructure deployment completed"
