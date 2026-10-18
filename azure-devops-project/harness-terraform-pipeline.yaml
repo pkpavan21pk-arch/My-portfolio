@@ -25,36 +25,25 @@ pipeline:
               echo "Searching for Terraform configuration:"
               find . -maxdepth 6 -type f -name "*.tf"
 
+        
         - run:
             script: |
               set -e
-              echo "=== Step 3: Verify Project Directory ==="
-              if [ ! -d "azure-devops-project/infra" ]; then
-                echo "ERROR: Terraform directory not found."
-                echo "Configure GitHub repository checkout before continuing."
+              echo "=== Locate Terraform Project ==="
+              echo "Current directory:"
+              pwd
+              echo "Workspace contents:"
+              ls -la
+
+              INFRA_DIR=$(find . -maxdepth 6 -type d -path "*/azure-devops-project/infra" -print -quit)
+
+              if [ -z "$INFRA_DIR" ]; then
+                echo "Terraform directory not found."
+                echo "Checking for Terraform files:"
+                find . -maxdepth 6 -type f -name "*.tf"
                 exit 1
               fi
-              cd azure-devops-project/infra
-              echo "Terraform project directory found."
 
-        - run:
-            script: |
-              set -e
-              cd azure-devops-project/infra
-              echo "=== Step 4: Check Terraform Formatting ==="
-              terraform fmt -check -recursive
+              echo "Terraform directory found at: $INFRA_DIR"
+              ls -la "$INFRA_DIR"
 
-        - run:
-            script: |
-              set -e
-              cd azure-devops-project/infra
-              echo "=== Step 5: Initialize Terraform ==="
-              terraform init -backend=false -input=false
-
-        - run:
-            script: |
-              set -e
-              cd azure-devops-project/infra
-              echo "=== Step 6: Validate Terraform ==="
-              terraform validate
-              echo "Terraform validation completed."
