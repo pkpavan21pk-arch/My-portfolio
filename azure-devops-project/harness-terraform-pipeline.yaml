@@ -10,7 +10,16 @@ pipeline:
         - run:
             script: |
               set -e
-              echo "Checking Git and Terraform availability"
+              echo "Checking available tools"
               git --version
               terraform version
+
+        - run:
+            script: |
+              set -e
+              echo "Checking repository workspace"
+              pwd
+              ls -la
+              find . -maxdepth 4 -type f -name "*.tf"
+
 
