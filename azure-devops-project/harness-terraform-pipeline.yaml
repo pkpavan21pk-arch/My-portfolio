@@ -1,6 +1,6 @@
 pipeline:
   stages:
-    - name: Terraform Validate
+    - name: Clone and Validate Terraform
       runtime: cloud
       platform:
         os: linux
@@ -10,25 +10,20 @@ pipeline:
             script: |
               set -eu
 
-              echo "Checking out repository files"
-              echo "Current directory:"
-              pwd
-              echo "Available files:"
+              echo "Cloning GitHub repository"
+              git clone --depth 1 --branch main https://github.com/pkpavan21pk-arch/My-portfolio.git /tmp/My-portfolio
+
+              echo "Checking Terraform files"
+              cd /tmp/My-portfolio/azure-devops-project/infra
               ls -la
 
-              echo "Checking Terraform directory"
-              cd /harness/azure-devops-project/infra
-
-              echo "Installing required tools"
+              echo "Installing tools"
               apt-get update
               apt-get install -y curl unzip
 
               TERRAFORM_VERSION="1.16.5"
               curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
               unzip -o /tmp/terraform.zip -d /usr/local/bin
-
-              echo "Terraform version"
-              terraform version
 
               echo "Formatting check"
               terraform fmt -check -recursive
