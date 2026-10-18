@@ -1,3 +1,4 @@
+
 pipeline:
   stages:
     - name: Deploy Azure Infrastructure
@@ -7,7 +8,7 @@ pipeline:
         arch: amd64
       steps:
         - run:
-            script: |
+            script: |-
               set -eu
 
               echo "======================================"
@@ -45,20 +46,20 @@ pipeline:
               terraform fmt -check -recursive
 
               echo "======================================"
-              echo "Step 5: Authenticate to Azure"
+              echo "Step 5: Configure Azure authentication"
               echo "======================================"
 
-              : "${ARM_CLIENT_ID:?Configure ARM_CLIENT_ID in Harness}"
-              : "${ARM_CLIENT_SECRET:?Configure ARM_CLIENT_SECRET securely in Harness}"
-              : "${ARM_TENANT_ID:?Configure ARM_TENANT_ID in Harness}"
-              : "${ARM_SUBSCRIPTION_ID:?Configure ARM_SUBSCRIPTION_ID in Harness}"
+              export ARM_CLIENT_ID="bb4283e0-42db-4cf5-969c-55d4c18f802f"
+              export ARM_TENANT_ID="aea8d035-0629-4c0a-bb73-16ec83172238"
+              export ARM_SUBSCRIPTION_ID="171a17a7-9dc3-406d-878e-b33aee0551a2"
+              export ARM_CLIENT_SECRET='<+secrets.getValue("secret_3fbe")>'
 
-              export ARM_CLIENT_ID
-              export ARM_CLIENT_SECRET
-              export ARM_TENANT_ID
-              export ARM_SUBSCRIPTION_ID
+              : "${ARM_CLIENT_ID:?Azure client ID is missing}"
+              : "${ARM_TENANT_ID:?Azure tenant ID is missing}"
+              : "${ARM_SUBSCRIPTION_ID:?Azure subscription ID is missing}"
+              : "${ARM_CLIENT_SECRET:?Azure client secret is missing}"
 
-              echo "Azure credential variables are configured."
+              echo "Azure authentication variables configured."
 
               echo "======================================"
               echo "Step 6: Initialize Terraform"
@@ -87,3 +88,8 @@ pipeline:
               echo "======================================"
               echo "Azure infrastructure deployment completed"
               echo "======================================"
+  inputs:
+    azure:
+      type: connector
+      required: true
+      default: connector_Azure_bde8
