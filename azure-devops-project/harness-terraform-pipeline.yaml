@@ -1,7 +1,7 @@
 
 pipeline:
   stages:
-    - name: terraform-validation
+    - name: terraform-workspace-check
       runtime: cloud
       platform:
         os: linux
@@ -10,13 +10,12 @@ pipeline:
         - run:
             script: |
               set -e
-              echo "Checking Terraform configuration"
-              terraform version
+              echo "Checking workspace"
+              pwd
+              ls -la
 
         - run:
             script: |
               set -e
-              echo "Checking Terraform files"
-              pwd
-              ls -la
-              find . -maxdepth 5 -type f -name "*.tf"
+              echo "Searching for Terraform files"
+              find . -maxdepth 6 -type f \( -name "main.tf" -o -name "providers.tf" -o -name "variables.tf" \)
