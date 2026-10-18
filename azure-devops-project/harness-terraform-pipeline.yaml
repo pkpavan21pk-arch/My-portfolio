@@ -10,32 +10,80 @@ pipeline:
             script: |
               set -eu
 
-              echo "Cloning Terraform repository"
+              echo "======================================"
+              echo "Step 1: Clone GitHub repository"
+              echo "======================================"
+
               git clone --depth 1 --branch main https://github.com/pkpavan21pk-arch/My-portfolio.git /tmp/My-portfolio
 
               cd /tmp/My-portfolio/azure-devops-project/infra
 
-              echo "Installing prerequisites"
+              echo "======================================"
+              echo "Step 2: Install prerequisites"
+              echo "======================================"
+
               apt-get update
               apt-get install -y curl unzip
 
+              echo "======================================"
+              echo "Step 3: Install Terraform"
+              echo "======================================"
+
               TERRAFORM_VERSION="1.16.5"
+
               curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
               unzip -o /tmp/terraform.zip -d /usr/local/bin
 
-              echo "Terraform version"
               terraform version
 
-              echo "Checking Terraform formatting"
+              echo "======================================"
+              echo "Step 4: Format Terraform files"
+              echo "======================================"
+
+              terraform fmt -recursive
               terraform fmt -check -recursive
 
-              echo "Initializing Terraform"
+              echo "======================================"
+              echo "Step 5: Authenticate to Azure"
+              echo "======================================"
+
+              : "${ARM_CLIENT_ID:?Configure ARM_CLIENT_ID in Harness}"
+              : "${ARM_CLIENT_SECRET:?Configure ARM_CLIENT_SECRET securely in Harness}"
+              : "${ARM_TENANT_ID:?Configure ARM_TENANT_ID in Harness}"
+              : "${ARM_SUBSCRIPTION_ID:?Configure ARM_SUBSCRIPTION_ID in Harness}"
+
+              export ARM_CLIENT_ID
+              export ARM_CLIENT_SECRET
+              export ARM_TENANT_ID
+              export ARM_SUBSCRIPTION_ID
+
+              echo "Azure credential variables are configured."
+
+              echo "======================================"
+              echo "Step 6: Initialize Terraform"
+              echo "======================================"
+
               terraform init -input=false
 
-              echo "Planning Azure infrastructure"
+              echo "======================================"
+              echo "Step 7: Validate Terraform"
+              echo "======================================"
+
+              terraform validate
+
+              echo "======================================"
+              echo "Step 8: Plan Azure infrastructure"
+              echo "======================================"
+
               terraform plan -input=false -out=tfplan
 
-              echo "Applying Azure infrastructure"
+              echo "======================================"
+              echo "Step 9: Apply Terraform plan"
+              echo "======================================"
+
               terraform apply -input=false -auto-approve tfplan
 
+              echo "======================================"
               echo "Azure infrastructure deployment completed"
+              echo "======================================"
