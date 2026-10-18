@@ -1,7 +1,6 @@
-
 pipeline:
   stages:
-    - name: terraform-deployment
+    - name: Terraform Validate
       runtime: cloud
       platform:
         os: linux
@@ -9,10 +8,33 @@ pipeline:
       steps:
         - run:
             script: |
-              set -e
-              echo "=== Terraform Infrastructure Pipeline ==="
-              echo "Project: Azure-DevOps-Harness"
-              echo "Repository: pkpavan21pk-arch/My-portfolio"
-              echo "Branch: main"
-              echo "Terraform directory: azure-devops-project/infra"
-              echo "Next: configure repository checkout and Terraform state"
+              set -eu
+
+              echo "Checking out repository files"
+              echo "Current directory:"
+              pwd
+              echo "Available files:"
+              ls -la
+
+              echo "Checking Terraform directory"
+              cd /harness/azure-devops-project/infra
+
+              echo "Installing required tools"
+              apt-get update
+              apt-get install -y curl unzip
+
+              TERRAFORM_VERSION="1.16.5"
+              curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+              unzip -o /tmp/terraform.zip -d /usr/local/bin
+
+              echo "Terraform version"
+              terraform version
+
+              echo "Formatting check"
+              terraform fmt -check -recursive
+
+              echo "Initializing Terraform"
+              terraform init -backend=false -input=false
+
+              echo "Validating Terraform"
+              terraform validate
