@@ -1,6 +1,6 @@
 pipeline:
   stages:
-    - name: Clone and Validate Terraform
+    - name: Terraform Validate
       runtime: cloud
       platform:
         os: linux
@@ -10,26 +10,58 @@ pipeline:
             script: |
               set -eu
 
-              echo "Cloning GitHub repository"
+              echo "======================================"
+              echo "Step 1: Clone GitHub repository"
+              echo "======================================"
+
               git clone --depth 1 --branch main https://github.com/pkpavan21pk-arch/My-portfolio.git /tmp/My-portfolio
 
-              echo "Checking Terraform files"
+              echo "======================================"
+              echo "Step 2: Navigate to Terraform code"
+              echo "======================================"
+
               cd /tmp/My-portfolio/azure-devops-project/infra
+              pwd
               ls -la
 
-              echo "Installing tools"
+              echo "======================================"
+              echo "Step 3: Install required tools"
+              echo "======================================"
+
               apt-get update
               apt-get install -y curl unzip
 
+              echo "======================================"
+              echo "Step 4: Install Terraform"
+              echo "======================================"
+
               TERRAFORM_VERSION="1.16.5"
+
               curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+
               unzip -o /tmp/terraform.zip -d /usr/local/bin
 
-              echo "Formatting check"
+              terraform version
+
+              echo "======================================"
+              echo "Step 5: Format Terraform files"
+              echo "======================================"
+
+              terraform fmt -recursive
               terraform fmt -check -recursive
 
-              echo "Initializing Terraform"
+              echo "======================================"
+              echo "Step 6: Initialize Terraform"
+              echo "======================================"
+
               terraform init -backend=false -input=false
 
-              echo "Validating Terraform"
+              echo "======================================"
+              echo "Step 7: Validate Terraform"
+              echo "======================================"
+
               terraform validate
+
+              echo "======================================"
+              echo "SUCCESS: Terraform validation completed"
+              echo "======================================"
