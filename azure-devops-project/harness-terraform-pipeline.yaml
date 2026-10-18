@@ -1,5 +1,16 @@
+
 pipeline:
   stages:
-    - steps:
+    - name: terraform-check
+      runtime: cloud
+      platform:
+        os: linux
+        arch: amd64
+      steps:
         - run:
-            script: echo "hello world"
+            script: |
+              set -e
+              echo "Checking Git and Terraform availability"
+              git --version
+              terraform version
+
