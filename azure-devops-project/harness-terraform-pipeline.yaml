@@ -1,7 +1,7 @@
 
 pipeline:
   stages:
-    - name: terraform-workspace-check
+    - name: terraform-ci
       runtime: cloud
       platform:
         os: linux
@@ -10,12 +10,51 @@ pipeline:
         - run:
             script: |
               set -e
-              echo "Checking workspace"
-              pwd
-              ls -la
+              echo "=== Step 1: Check Terraform ==="
+              terraform version
+              git --version
 
         - run:
             script: |
               set -e
-              echo "Searching for Terraform files"
-              find . -maxdepth 6 -type f \( -name "main.tf" -o -name "providers.tf" -o -name "variables.tf" \)
+              echo "=== Step 2: Locate Terraform Project ==="
+              echo "Current directory:"
+              pwd
+              echo "Available files:"
+              ls -la
+              echo "Searching for Terraform configuration:"
+              find . -maxdepth 6 -type f -name "*.tf"
+
+        - run:
+            script: |
+              set -e
+              echo "=== Step 3: Verify Project Directory ==="
+              if [ ! -d "azure-devops-project/infra" ]; then
+                echo "ERROR: Terraform directory not found."
+                echo "Configure GitHub repository checkout before continuing."
+                exit 1
+              fi
+              cd azure-devops-project/infra
+              echo "Terraform project directory found."
+
+        - run:
+            script: |
+              set -e
+              cd azure-devops-project/infra
+              echo "=== Step 4: Check Terraform Formatting ==="
+              terraform fmt -check -recursive
+
+        - run:
+            script: |
+              set -e
+              cd azure-devops-project/infra
+              echo "=== Step 5: Initialize Terraform ==="
+              terraform init -backend=false -input=false
+
+        - run:
+            script: |
+              set -e
+              cd azure-devops-project/infra
+              echo "=== Step 6: Validate Terraform ==="
+              terraform validate
+              echo "Terraform validation completed."
