@@ -1,7 +1,7 @@
 
 pipeline:
   stages:
-    - name: terraform-check
+    - name: github-check
       runtime: cloud
       platform:
         os: linux
@@ -10,16 +10,8 @@ pipeline:
         - run:
             script: |
               set -e
-              echo "Checking available tools"
-              git --version
-              terraform version
+              echo "Checking GitHub repository access"
+              git ls-remote https://github.com/pkpavan21pk/My-portfolio.git HEAD
 
-        - run:
-            script: |
-              set -e
-              echo "Checking repository workspace"
-              pwd
-              ls -la
-              find . -maxdepth 4 -type f -name "*.tf"
 
 
