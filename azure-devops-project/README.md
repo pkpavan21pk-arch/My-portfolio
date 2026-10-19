@@ -75,6 +75,9 @@ azure-devops-project/
 │   └── service.yaml
 ├── pipelines/
 │   └── azure-pipelines.yml
+├── evidence/
+│   ├── azure-devops/
+│   └── harness/
 ├── .gitignore
 └── README.md
 ```
@@ -158,30 +161,28 @@ kubectl get service nginx-app-service
 
 - **GitHub Repository:** https://github.com/pkpavan21pk-arch/My-portfolio/tree/main/azure-devops-project
 - **Portfolio Website:** https://pkpavan21pk-arch.github.io/My-portfolio/
+- **Harness and infrastructure evidence:** [View EVIDENCE.md](EVIDENCE.md)
 
+## 📸 Azure DevOps Evidence
 
+### 1. Successful Azure DevOps Pipeline
 
+The Build and Deploy stages completed successfully using Azure Pipelines YAML.
 
-## 📸 Project Screenshots
+![Successful Azure DevOps Pipeline](evidence/azure-devops/pipeline-success.png)
 
-### 1. Live Application on Azure Kubernetes Service (AKS)
+### 2. Kubernetes Deployment Verification
 
-The NGINX application is publicly accessible through the Kubernetes LoadBalancer service.
+Evidence of the application and Kubernetes resources verified on AKS.
 
-![Live Application](docs/screenshots/live-application.png)
+![Kubernetes Deployment Verification](evidence/azure-devops/kubernetes-verification.png)
 
-### 2. Azure DevOps CI/CD Pipeline
+### 3. Live NGINX Application
 
-Both Build and Deploy stages completed successfully using Azure Pipelines YAML.
+Screenshot of the NGINX application served from AKS through the Kubernetes LoadBalancer service.
 
-![Successful Azure DevOps Pipeline](docs/screenshots/pipeline-success.png)
+![Live NGINX Application](evidence/azure-devops/live-application.png)
 
-### 3. Kubernetes Deployment Verification
-
-The application was verified on AKS with two running replicas and a LoadBalancer service.
-
-![Kubernetes Deployment Verification](docs/screenshots/kubernetes-verification.png)
 ---
-
 
 *Built as a hands-on Cloud and DevOps portfolio project to demonstrate infrastructure automation, containerization, CI/CD, and Kubernetes deployment on Microsoft Azure.*
