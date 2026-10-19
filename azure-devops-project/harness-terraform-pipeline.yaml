@@ -1,7 +1,7 @@
 
 pipeline:
   stages:
-    - name: Cleanup Azure Resources
+    - name: Deploy Azure Infrastructure
       runtime: cloud
       platform:
         os: linux
@@ -11,49 +11,53 @@ pipeline:
             script: |-
               set -eu
 
-              echo "Step 1: Install Azure CLI"
-              apt-get update
-              apt-get install -y azure-cli
+              echo "Step 1: Clone repository"
+              git clone --depth 1 --branch main https://github.com/pkpavan21pk-arch/My-portfolio.git /tmp/My-portfolio
+              cd /tmp/My-portfolio/azure-devops-project/infra
 
-              echo "Step 2: Configure Azure credentials"
+              echo "Step 2: Install prerequisites"
+              apt-get update
+              apt-get install -y curl unzip
+
+              echo "Step 3: Install Terraform"
+              TERRAFORM_VERSION="1.16.5"
+              curl -fsSLo /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+              unzip -o /tmp/terraform.zip -d /usr/local/bin
+              terraform version
+
+              echo "Step 4: Format Terraform"
+              terraform fmt -recursive
+              terraform fmt -check -recursive
+
+              echo "Step 5: Configure Azure authentication"
               export ARM_CLIENT_ID="bb4283e0-42db-4cf5-969c-55d4c18f802f"
               export ARM_TENANT_ID="aea8d035-0629-4c0a-bb73-16ec83172238"
               export ARM_SUBSCRIPTION_ID="171a17a7-9dc3-406d-878e-b33aee0551a2"
               export ARM_CLIENT_SECRET='<+secrets.getValue("secret_3fbe")>'
 
-              : "${ARM_CLIENT_SECRET:?Azure client secret is missing}"
+              : "${ARM_CLIENT_ID:?Azure client ID missing}"
+              : "${ARM_TENANT_ID:?Azure tenant ID missing}"
+              : "${ARM_SUBSCRIPTION_ID:?Azure subscription ID missing}"
+              : "${ARM_CLIENT_SECRET:?Azure client secret missing}"
 
-              echo "Step 3: Login to Azure"
-              az login \
-                --service-principal \
-                --username "$ARM_CLIENT_ID" \
-                --password "$ARM_CLIENT_SECRET" \
-                --tenant "$ARM_TENANT_ID" \
-                --output none
+              echo "Step 6: Initialize Terraform"
+              terraform init -input=false
 
-              az account set --subscription "$ARM_SUBSCRIPTION_ID"
+              echo "Step 7: Validate Terraform"
+              terraform validate
 
-              echo "Step 4: Verify target resource group"
-              RESOURCE_GROUP="rg-devops-demo"
+              echo "Step 8: Plan Azure infrastructure"
+              terraform plan \
+                -input=false \
+                -var="subscription_id=${ARM_SUBSCRIPTION_ID}" \
+                -var="name=devops-demo" \
+                -var="location=eastus" \
+                -out=tfplan
 
-              az group show \
-                --name "$RESOURCE_GROUP" \
-                --query "{name:name, location:location}" \
-                --output table
+              echo "Step 9: Apply Terraform plan"
+              terraform apply -input=false -auto-approve tfplan
 
-              echo "Step 5: Delete resource group"
-              az group delete \
-                --name "$RESOURCE_GROUP" \
-                --yes \
-                --no-wait
-
-              echo "Deletion requested. Checking completion..."
-
-              az group wait \
-                --name "$RESOURCE_GROUP" \
-                --deleted
-
-              echo "Cleanup completed: resource group deleted."
+              echo "Azure infrastructure deployment completed"
   inputs:
     azure:
       type: connector
