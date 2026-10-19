@@ -7,7 +7,7 @@ This page is an evidence index for the portfolio project. It links to the actual
 - Harness pipeline provisions Azure infrastructure with modular Terraform.
 - Azure resources created for the lab include a resource group, virtual network, subnet, Azure Container Registry (ACR), and Azure Kubernetes Service (AKS).
 - An NGINX demo was separately verified running on AKS and exposed using a Kubernetes LoadBalancer service.
-- The Harness application-deployment pipeline is still in progress; it is not presented as completed.
+- Both Harness pipelines are complete: the infrastructure pipeline provisions Azure resources with Terraform, and the application-deployment pipeline applies Kubernetes manifests to AKS and verifies rollout, pods, service, and external IP.
 
 ## Source and implementation evidence
 
