@@ -1,31 +1,43 @@
 # Harness + Terraform Azure Infrastructure — Evidence
 
-This page is an evidence index for the portfolio project. It links to the actual pipeline definitions, Terraform source, and Kubernetes manifests in this repository.
+This page documents the implementation and runtime evidence for the portfolio project.
 
 ## Project summary
 
 - Harness pipeline provisions Azure infrastructure with modular Terraform.
 - Azure resources created for the lab include a resource group, virtual network, subnet, Azure Container Registry (ACR), and Azure Kubernetes Service (AKS).
-- An NGINX demo was separately verified running on AKS and exposed using a Kubernetes LoadBalancer service.
-- Both Harness pipelines are complete: the infrastructure pipeline provisions Azure resources with Terraform, and the application-deployment pipeline applies Kubernetes manifests to AKS and verifies rollout, pods, service, and external IP.
+- The Harness application-deployment pipeline applies Kubernetes manifests to AKS and verifies rollout, pods, service, and external IP.
+- NGINX was verified running on AKS and exposed using a Kubernetes LoadBalancer service.
+
+## Harness infrastructure pipeline
+
+Screenshot of the successful Harness infrastructure pipeline execution:
+
+![Harness infrastructure pipeline evidence](evidence/harness/harness-infrastructure-pipeline.png)
+
+## AKS cluster evidence
+
+Screenshot showing AKS cluster evidence:
+
+![AKS cluster evidence](evidence/harness/Aks-evidence.png)
+
+## NGINX application running on AKS
+
+Screenshot showing the NGINX application running:
+
+![NGINX running on AKS](evidence/harness/nginx-running.png)
 
 ## Source and implementation evidence
 
-1. [Harness Terraform infrastructure pipeline YAML](https://github.com/pkpavan21pk-arch/My-portfolio/blob/main/azure-devops-project/harness-terraform-pipeline.yaml)
-2. [Harness application deployment pipeline YAML](https://github.com/pkpavan21pk-arch/My-portfolio/blob/main/azure-devops-project/harness-deployment-pipeline.yamal)
-3. [Terraform root configuration](https://github.com/pkpavan21pk-arch/My-portfolio/blob/main/azure-devops-project/infra/main.tf)
-4. [Terraform modules and provider configuration](https://github.com/pkpavan21pk-arch/My-portfolio/tree/main/azure-devops-project/infra)
-5. [Kubernetes Deployment manifest](https://github.com/pkpavan21pk-arch/My-portfolio/blob/main/azure-devops-project/k8s/deployment.yaml)
-6. [Kubernetes LoadBalancer Service manifest](https://github.com/pkpavan21pk-arch/My-portfolio/blob/main/azure-devops-project/k8s/service.yaml)
-7. [Project README](https://github.com/pkpavan21pk-arch/My-portfolio/blob/main/azure-devops-project/README.md)
+1. [Harness Terraform infrastructure pipeline YAML](harness-terraform-pipeline.yaml)
+2. [Harness application deployment pipeline YAML](harness-deployment-pipeline.yamal)
+3. [Terraform root configuration](infra/main.tf)
+4. [Terraform modules and provider configuration](infra/)
+5. [Kubernetes Deployment manifest](k8s/deployment.yaml)
+6. [Kubernetes LoadBalancer Service manifest](k8s/service.yaml)
+7. [Project README](README.md)
 
-## Runtime evidence to capture
+## Azure DevOps evidence
 
-For a stronger portfolio presentation, add screenshots of:
-- Successful Harness infrastructure pipeline execution, including the Terraform apply summary.
-- Azure Portal showing the resource group and AKS cluster.
-- kubectl get nodes showing the AKS node as Ready.
-- kubectl get pods,svc showing the NGINX pod Running and the LoadBalancer service.
-- The NGINX welcome page opened in a browser.
+[View Azure DevOps screenshots](evidence/azure-devops/)
 
-**Screenshot note:** These screenshots are not currently stored in this repository. This page links to the implementation files and lists the runtime evidence still to upload; it does not claim that screenshots are already available.
