@@ -1,0 +1,96 @@
+
+pipeline:
+  stages:
+    - name: Deploy NGINX to AKS
+      runtime: cloud
+      platform:
+        os: linux
+        arch: amd64
+      steps:
+        - run:
+            script: |-
+              set -eu
+
+              echo "Step 1: Clone GitHub repository"
+              git clone --depth 1 --branch main https://github.com/pkpavan21pk-arch/My-portfolio.git /tmp/My-portfolio
+              cd /tmp/My-portfolio
+
+              echo "Step 2: Install prerequisites"
+              apt-get update
+              apt-get install -y curl ca-certificates apt-transport-https lsb-release gnupg unzip
+
+              echo "Step 3: Install Azure CLI"
+              curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+              echo "Step 4: Install kubectl and kubelogin"
+              az aks install-cli \
+                --install-location /usr/local/bin/kubectl \
+                --kubelogin-install-location /usr/local/bin/kubelogin
+
+              kubectl version --client
+              kubelogin --version
+
+              echo "Step 5: Configure Azure authentication"
+              export ARM_CLIENT_ID="bb4283e0-42db-4cf5-969c-55d4c18f802f"
+              export ARM_TENANT_ID="aea8d035-0629-4c0a-bb73-16ec83172238"
+              export ARM_SUBSCRIPTION_ID="171a17a7-9dc3-406d-878e-b33aee0551a2"
+              export ARM_CLIENT_SECRET='<+secrets.getValue("secret_3fbe")>'
+
+              : "${ARM_CLIENT_ID:?Azure client ID missing}"
+              : "${ARM_TENANT_ID:?Azure tenant ID missing}"
+              : "${ARM_SUBSCRIPTION_ID:?Azure subscription ID missing}"
+              : "${ARM_CLIENT_SECRET:?Azure client secret missing}"
+
+              echo "Step 6: Login to Azure"
+              az login \
+                --service-principal \
+                --username "$ARM_CLIENT_ID" \
+                --password "$ARM_CLIENT_SECRET" \
+                --tenant "$ARM_TENANT_ID" \
+                --output none
+
+              az account set --subscription "$ARM_SUBSCRIPTION_ID"
+
+              echo "Step 7: Get AKS credentials"
+              az aks get-credentials \
+                --resource-group rg-devops-demo \
+                --name aks-devops-demo \
+                --overwrite-existing
+
+              echo "Step 8: Configure Kubernetes authentication"
+              kubelogin convert-kubeconfig \
+                -l spn \
+                --client-id "$ARM_CLIENT_ID" \
+                --client-secret "$ARM_CLIENT_SECRET" \
+                --tenant-id "$ARM_TENANT_ID"
+
+              echo "Step 9: Verify AKS connectivity"
+              kubectl get nodes
+
+              echo "Step 10: Check Kubernetes manifest files"
+              test -f k8s/deployment.yaml
+              test -f k8s/service.yaml
+
+              echo "Step 11: Apply application manifests"
+              kubectl apply -f k8s/deployment.yaml
+              kubectl apply -f k8s/service.yaml
+
+              echo "Step 12: Wait for application rollout"
+              kubectl rollout status deployment/nginx-demo --timeout=180s
+
+              echo "Step 13: Verify pods and service"
+              kubectl get pods
+              kubectl get service nginx-demo
+
+              echo "Step 14: Display external IP"
+              kubectl get service nginx-demo \
+                -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+              echo
+
+              echo "NGINX deployment pipeline completed"
+
+  inputs:
+    azure:
+      type: connector
+      required: true
+      default: connector_Azure_bde8
